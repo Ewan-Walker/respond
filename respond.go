@@ -84,9 +84,8 @@ func WithStatus(w http.ResponseWriter, r *http.Request, status int) {
 var (
 	mutex     sync.RWMutex
 	option    *Options
-	options   map[*http.Request]*Options
-	responded map[*http.Request]bool
-	initOnce  sync.Once
+	options   = make(map[*http.Request]*Options)
+	responded = make(map[*http.Request]bool)
 )
 
 func SetOptions(opt *Options) {
@@ -132,10 +131,6 @@ type Options struct {
 // containing With calls.
 func (o *Options) Handler(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		initOnce.Do(func() {
-			options = make(map[*http.Request]*Options)
-			responded = make(map[*http.Request]bool)
-		})
 		mutex.Lock()
 		options[r] = o
 		mutex.Unlock()
