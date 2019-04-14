@@ -7,6 +7,11 @@ import (
 )
 
 func with(w http.ResponseWriter, r *http.Request, status int, data interface{}, opts *Options, multiple bool) {
+
+	if opts == nil && option != nil {
+		opts = option
+	}
+
 	hasOpts := opts != nil
 
 	if hasOpts && multiple && !opts.AllowMultiple {
@@ -78,10 +83,15 @@ func WithStatus(w http.ResponseWriter, r *http.Request, status int) {
 
 var (
 	mutex     sync.RWMutex
+	option    *Options
 	options   map[*http.Request]*Options
 	responded map[*http.Request]bool
 	initOnce  sync.Once
 )
+
+func SetOptions(opt *Options) {
+	option = opt
+}
 
 // Options provides additional control over the behaviour of With.
 type Options struct {
